@@ -1,3 +1,105 @@
 {
-  "extends": ["next/core-web-vitals", "next/typescript"]
+  "globals": {
+    "Atomics": "readonly",
+    "SharedArrayBuffer": "readonly"
+  },
+  "env": {
+    "browser": true,
+    "commonjs": true,
+    "es6": true,
+    "node": true,
+    "jest": true
+  },
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "tsconfig.json",
+    "tsconfigRootDir": ".",
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "plugins": [
+    "react",
+    "@typescript-eslint",
+    "sonarjs",
+    "promise",
+    "eslint-plugin-no-cyrillic-string",
+    "jest",
+    "testing-library"
+  ],
+  "ignorePatterns": ["sentry.server.config.js", "sentry.client.config.js", "src/pages/_error.js"],
+  "rules": {
+    "@typescript-eslint/prefer-for-of": "error",
+    "padding-line-between-statements": [
+      "error",
+      { "blankLine": "always", "prev": "*", "next": "return" },
+      { "blankLine": "always", "prev": "const", "next": "if" }
+    ],
+    "jest/no-disabled-tests": "warn",
+    "jest/no-focused-tests": "error",
+    "jest/no-commented-out-tests": "error",
+    "jest/no-duplicate-hooks": "error",
+    "jest/prefer-hooks-in-order": "error",
+    "jest/valid-expect": "error",
+    "jest/expect-expect": "error",
+    "jest/consistent-test-it": ["error", { "fn": "it" }],
+    "jest/prefer-mock-promise-shorthand": "error",
+    "jest/prefer-hooks-on-top": "error",
+    "jest/prefer-to-be": "error",
+    "jest/prefer-to-contain": "error",
+    "jest/prefer-to-have-length": "error",
+    "jest/no-deprecated-functions": "error",
+    "jest/no-alias-methods": "error",
+    "testing-library/no-debugging-utils": "error",
+    "no-extra-boolean-cast": "off",
+    "@typescript-eslint/no-empty-function": ["error", { "allow": ["arrowFunctions"] }],
+    "@typescript-eslint/ban-ts-comment": "off",
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/member-delimiter-style": ["off"],
+    "@typescript-eslint/camelcase": "off",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/ban-ts-ignore": "off",
+    "@typescript-eslint/triple-slash-reference": "off",
+    "@typescript-eslint/no-var-requires": 0,
+    "no-cyrillic-string/no-cyrillic-string": "error",
+    "@typescript-eslint/no-unused-expressions": [
+      "error",
+      { "allowShortCircuit": true, "allowTernary": true }
+    ],
+    "react/jsx-tag-spacing": [
+      "error",
+      {
+        "beforeSelfClosing": "always"
+      }
+    ],
+    "react/display-name": "off",
+    "react/jsx-curly-spacing": ["off"],
+    "sonarjs/no-duplicate-string": "off",
+    "sonarjs/cognitive-complexity": ["error", 15],
+    "promise/no-promise-in-callback": "off",
+    "no-console": "error",
+    "@next/next/no-img-element": "off"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.tsx"],
+      "rules": {
+        "react/prop-types": "off"
+      }
+    }
+  ],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  }
 }

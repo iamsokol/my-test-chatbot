@@ -1,0 +1,41 @@
+{
+  "printWidth": 100,
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": false,
+  "singleQuote": true,
+  "jsxSingleQuote": false,
+  "trailingComma": "all",
+  "bracketSpacing": true,
+  "jsxBracketSameLine": false,
+  "arrowParens": "avoid",
+  "endOfLine": "lf",
+  "plugins": [
+    "@ianvs/prettier-plugin-sort-imports"
+  ],
+  "importOrder": [
+    "^react$",
+    "^react-",
+    "^ks-react-design-system$",
+    "^ks-landing-components$",
+    "^nkw-components$",
+    "^next",
+    "<THIRD_PARTY_MODULES>",
+    "",
+    "^src\/api",
+    "^src\/strapi",
+    "^src\/common",
+    "^src\/gsm",
+    "^src\/fttb",
+    "^src\/b2b",
+    "^src\/",
+    "^(?!.*[.]scss$)[.].*$",
+    "",
+    ".scss$"
+  ],
+  "importOrderParserPlugins": [
+    "typescript",
+    "jsx"
+  ],
+  "importOrderTypeScriptVersion": "5.5.4"
+}

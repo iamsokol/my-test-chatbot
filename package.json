@@ -9,18 +9,43 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "next": "15.0.1",
+    "openai": "4.11.1",
     "react": "19.0.0-rc-69d4b800-20241021",
     "react-dom": "19.0.0-rc-69d4b800-20241021",
-    "next": "15.0.1"
+    "sass": "^1.43.4",
+    "stylelint-config-airbnb": "^0.0.0",
+    "stylelint-config-rational-order": "^0.1.2",
+    "stylelint-order": "^6.0.4",
+    "stylelint-prettier": "^5.0.2",
+    "stylelint-scss": "^6.8.1"
   },
   "devDependencies": {
-    "typescript": "^5",
-    "@types/node": "^20",
-    "@types/react": "^18",
+    "@ianvs/prettier-plugin-sort-imports": "^4.1.1",
+    "@types/node": "^20.17.1",
+    "@types/react": "^18.3.12",
     "@types/react-dom": "^18",
+    "@typescript-eslint/eslint-plugin": "^7.11.0",
+    "@typescript-eslint/parser": "^7.11.0",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "15.0.1",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-config-standard-react": "^9.2.0",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-jest": "^27.2.1",
+    "eslint-plugin-next": "^0.0.0",
+    "eslint-plugin-no-cyrillic-string": "^1.0.5",
+    "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-react": "^7.35.0",
+    "eslint-plugin-sonarjs": "^0.5.0",
+    "eslint-plugin-standard": "^4.0.1",
+    "eslint-plugin-testing-library": "^5.10.2",
     "postcss": "^8",
+    "prettier": "2.0.4",
+    "prettier-eslint": "^9.0.1",
     "tailwindcss": "^3.4.1",
-    "eslint": "^8",
-    "eslint-config-next": "15.0.1"
+    "typescript": "^5.6.3"
   }
 }

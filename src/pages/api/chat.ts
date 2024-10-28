@@ -26,13 +26,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const systemMessage = { role: 'system', content: dialog }
-
-    const updatedMessages = [systemMessage, ...messages]
-
     const completion = await client.chat.completions.create({
       model: 'gpt-4o-mini-2024-07-18',
-      messages: updatedMessages,
+      messages: [{ role: 'system', content: dialog }, ...messages],
     })
 
     const botReply = completion.choices[0].message?.content

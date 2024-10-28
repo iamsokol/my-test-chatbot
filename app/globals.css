@@ -28,6 +28,7 @@ button,
 input {
   background: none;
   border: none;
+  touch-action: manipulation;
 
   &:active,
   &:focus {

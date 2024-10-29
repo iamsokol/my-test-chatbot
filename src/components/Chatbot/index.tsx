@@ -18,6 +18,7 @@ interface ChatMessage {
 const Chatbot: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([])
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -37,6 +38,7 @@ const Chatbot: React.FC = () => {
     setMessages([...messages, { sender: 'user', text: input.trim() }])
     setInput('')
     setChatHistory(updatedChatHistory)
+    setIsLoading(true)
 
     try {
       const response = await fetch('/api/chat', {
@@ -50,19 +52,21 @@ const Chatbot: React.FC = () => {
       const data = await response.json()
 
       if (response.ok) {
+        setIsLoading(false)
         setMessages(prevMessages => [...prevMessages, { sender: 'bot', text: data.reply }])
         setChatHistory(prevHistory => [...prevHistory, { role: 'assistant', content: data.reply }])
       } else {
+        setIsLoading(false)
         setMessages(prevMessages => [
           ...prevMessages,
-          { sender: 'bot', text: 'Виникла помилка при отриманні відповіді.' },
+          { sender: 'bot', text: 'Something went wrong' },
         ])
       }
     } catch (error) {
-      console.error('Помилка при відправці повідомлення:', error)
+      console.error('Something went wrong', error)
       setMessages(prevMessages => [
         ...prevMessages,
-        { sender: 'bot', text: 'Виникла помилка при відправленні повідомлення.' },
+        { sender: 'bot', text: 'Something went wrong' },
       ])
     }
   }
@@ -72,8 +76,6 @@ const Chatbot: React.FC = () => {
       sendMessage()
     }
   }
-
-  console.log('send, send', send)
 
   return (
     <div className={styles.container}>
@@ -94,6 +96,13 @@ const Chatbot: React.FC = () => {
                 </div>
               </div>
             ))}
+            {isLoading && (
+              <div className={styles.bot}>
+                <div className={styles.loaderElement}>
+                  <span className={styles.loader}></span>
+                </div>
+              </div>
+            )}
             <div ref={messagesEndRef} />
           </div>
         </div>

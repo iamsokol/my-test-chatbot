@@ -61,7 +61,6 @@ const Chatbot: React.FC = () => {
       let lastFlush = 0
       let burstCount = 1
       let lastSplitIndex = 0
-      // Ймовірнісний прапорець: лише інколи розбиваємо на 2 повідомлення
       const allowSplit = Math.random() < 0.4
 
       while (true) {
@@ -84,10 +83,8 @@ const Chatbot: React.FC = () => {
           if (!gotFirstDelta) {
             gotFirstDelta = true
             setIsLoading(false)
-            // створити перший бот-меседж лише при першому дельта
             setMessages(prev => [...prev, { sender: 'bot', text: '' }])
           }
-          // Якщо закінчилося речення і текст довший за поріг — розбий на нове повідомлення (до 2 повідомлень)
           const endsSentence = /[\.!?…]\s?$/.test(botText)
           if (
             allowSplit &&
@@ -96,15 +93,12 @@ const Chatbot: React.FC = () => {
             botText.length - lastSplitIndex > 120
           ) {
             const splitIndex = botText.length
-            // зафіксувати перше повідомлення
             setMessages(prev => {
               const next = [...prev]
               next[next.length - 1] = { sender: 'bot', text: botText.slice(0, splitIndex) }
               return next
             })
-            // невелика пауза, як у живій розмові
             await new Promise(resolve => setTimeout(resolve, 300))
-            // почати друге повідомлення
             setMessages(prev => [...prev, { sender: 'bot', text: '' }])
             burstCount += 1
             lastSplitIndex = splitIndex
@@ -120,7 +114,7 @@ const Chatbot: React.FC = () => {
           }
         }
       }
-      // фінальне оновлення після виходу з циклу
+
       if (gotFirstDelta) {
         setMessages(prev => {
           const next = [...prev]
@@ -128,7 +122,6 @@ const Chatbot: React.FC = () => {
           if (remaining && remaining.trim().length > 0) {
             next[next.length - 1] = { sender: 'bot', text: remaining }
           } else {
-            // якщо останнє бот-повідомлення порожнє — видалити його
             const last = next[next.length - 1]
             if (last && last.sender === 'bot' && (!last.text || last.text.trim() === '')) {
               next.pop()

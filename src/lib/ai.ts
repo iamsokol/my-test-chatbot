@@ -1,5 +1,6 @@
 import process from 'process'
 import OpenAI from 'openai'
+
 import { buildSystemPrompt, CaseMap } from 'src/lib/case'
 
 export type ChatRole = 'user' | 'assistant'
@@ -12,14 +13,10 @@ export interface ChatMessage {
 export function getAllowedModels(): string[] {
   const fromEnv = process.env.OPENAI_ALLOWED_MODELS
   if (fromEnv && fromEnv.trim().length > 0) return fromEnv.split(',').map(s => s.trim())
-  // Сучасні, Chat Completions-сумісні та оптимальні для симуляції пацієнта (UA/EN):
-  // - gpt-4o: найприродніший стиль, краща "людяність"
-  // - gpt-4o-mini-2024-07-18 / gpt-4o-mini: дешевше, швидше, гарна якість
   return ['gpt-4o', 'gpt-4o-mini-2024-07-18', 'gpt-4o-mini']
 }
 
 export function getModel(): string {
-  // Дефолт: стабільна chat.completions-модель
   const model = (process.env.OPENAI_MODEL || 'gpt-4o-mini').trim()
   const allowed = getAllowedModels()
 
@@ -53,7 +50,6 @@ export function buildSystemPromptWithCase(basePolicy: string, caseMap: CaseMap):
 }
 
 export function detectTranscriptLanguage(transcript: ChatMessage[]): 'uk' | 'en' {
-  // Heuristic: if last user message contains Cyrillic, assume Ukrainian
   const lastUser = [...transcript].reverse().find(m => m.role === 'user')
   if (!lastUser) return 'en'
   return /[\u0400-\u04FF]/.test(lastUser.content) ? 'uk' : 'en'

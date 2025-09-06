@@ -82,13 +82,14 @@
   }
 }
 
+.evaluationBox,
 .dialogWrapper {
   height: calc(100vh - 435px);
   overflow: scroll;
   display: grid;
 
   @media (max-width: 700px) {
-    height: calc(100vh - 420px);
+    height: calc(100vh - 340px);
   }
 }
 

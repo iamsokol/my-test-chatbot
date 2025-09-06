@@ -22,6 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (!messages || !Array.isArray(messages)) {
     res.status(400).json({ message: 'Повідомлення не надані або мають неправильний формат' })
+
     return
   }
 

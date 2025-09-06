@@ -2,6 +2,21 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+### Environment
+
+Create a `.env.local` file in the project root with:
+
+```
+OPENAI_API_KEY=your_key_here
+# Default model (server-side configurable)
+# Examples: o4-mini, gpt-4o, gpt-4o-mini-2024-07-18, o3-mini
+OPENAI_MODEL=o4-mini
+OPENAI_TEMPERATURE=0.7
+OPENAI_TOP_P=1
+# Optional allowlist for validation (comma-separated)
+OPENAI_ALLOWED_MODELS=o4-mini,gpt-4o,gpt-4o-mini,gpt-4o-mini-2024-07-18,o3-mini
+```
+
 First, run the development server:
 
 ```bash

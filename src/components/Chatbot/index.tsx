@@ -41,7 +41,7 @@ const Chatbot: React.FC = () => {
     setIsLoading(true)
 
     try {
-      const response = await fetch('/api/chat', {
+      const response = await fetch('/api/chat-stream', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -49,19 +49,41 @@ const Chatbot: React.FC = () => {
         body: JSON.stringify({ messages: updatedChatHistory }),
       })
 
-      const data = await response.json()
+      if (!response.body) throw new Error('No stream body')
 
-      if (response.ok) {
-        setIsLoading(false)
-        setMessages(prevMessages => [...prevMessages, { sender: 'bot', text: data.reply }])
-        setChatHistory(prevHistory => [...prevHistory, { role: 'assistant', content: data.reply }])
-      } else {
-        setIsLoading(false)
-        setMessages(prevMessages => [
-          ...prevMessages,
-          { sender: 'bot', text: 'Something went wrong' },
-        ])
+      let botText = ''
+      // попередньо додати порожнє бот-повідомлення, яке будемо оновлювати
+      setMessages(prev => [...prev, { sender: 'bot', text: '' }])
+
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+
+      while (true) {
+        const { value, done } = await reader.read()
+        if (done) break
+        const chunk = decoder.decode(value, { stream: true })
+        const parts = chunk.split('\n\n')
+        for (const part of parts) {
+          if (!part.startsWith('data: ')) continue
+          const payload = part.slice(6)
+          if (payload === '[DONE]') {
+            setIsLoading(false)
+            break
+          }
+          if (payload === '[ERROR]') {
+            setIsLoading(false)
+            throw new Error('Stream error')
+          }
+          botText += payload
+          setMessages(prev => {
+            const next = [...prev]
+            // останнє повідомлення — бот; оновлюємо його текст
+            next[next.length - 1] = { sender: 'bot', text: botText }
+            return next
+          })
+        }
       }
+      setChatHistory(prev => [...prev, { role: 'assistant', content: botText }])
     } catch (error) {
       console.error('Something went wrong', error)
       setMessages(prevMessages => [

@@ -32,6 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
 
     const botReply = completion.choices[0].message?.content
+
     res.status(200).json({ reply: botReply })
   } catch (error) {
     console.error('Помилка при виклику OpenAI API:', error)

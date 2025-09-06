@@ -118,9 +118,6 @@ const Chatbot: React.FC = () => {
           <button className={styles.button} onClick={sendMessage}>
             <img src={send.src} alt="send" />
           </button>
-          <button className={styles.button}>
-            <img src={voice.src} alt="voice" />
-          </button>
         </div>
       </div>
     </div>

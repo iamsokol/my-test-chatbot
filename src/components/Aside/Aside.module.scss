@@ -1,5 +1,5 @@
 .container {
-  width: 300px;
+  width: 250px;
   height: 100vh;
   background: #ffffff;
   border-right: 1px solid #c4c4c4;
@@ -62,10 +62,11 @@
 }
 
 .board {
-  margin-bottom: 35px;
   text-align: center;
 
   img {
-    width: 80%;
+    width: 90%;
+    display: block;
+    margin: 0 auto;
   }
 }

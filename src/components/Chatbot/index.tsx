@@ -61,6 +61,8 @@ const Chatbot: React.FC = () => {
       const decoder = new TextDecoder()
       let gotFirstDelta = false
       let lastFlush = 0
+      let burstCount = 1
+      let lastSplitIndex = 0
 
       while (true) {
         const { value, done } = await reader.read()
@@ -83,12 +85,29 @@ const Chatbot: React.FC = () => {
             gotFirstDelta = true
             setIsLoading(false)
           }
+          // Якщо закінчилося речення і текст довший за поріг — розбий на нове повідомлення (до 2 повідомлень)
+          const endsSentence = /[\.!?…]\s?$/.test(botText)
+          if (endsSentence && burstCount < 2 && botText.length - lastSplitIndex > 160) {
+            const splitIndex = botText.length
+            // зафіксувати перше повідомлення
+            setMessages(prev => {
+              const next = [...prev]
+              next[next.length - 1] = { sender: 'bot', text: botText.slice(0, splitIndex) }
+              return next
+            })
+            // невелика пауза, як у живій розмові
+            await new Promise(resolve => setTimeout(resolve, 300))
+            // почати друге повідомлення
+            setMessages(prev => [...prev, { sender: 'bot', text: '' }])
+            burstCount += 1
+            lastSplitIndex = splitIndex
+          }
           const now = Date.now()
           if (now - lastFlush > 60) {
             lastFlush = now
             setMessages(prev => {
               const next = [...prev]
-              next[next.length - 1] = { sender: 'bot', text: botText }
+              next[next.length - 1] = { sender: 'bot', text: botText.slice(lastSplitIndex) }
               return next
             })
           }
@@ -97,7 +116,7 @@ const Chatbot: React.FC = () => {
       // фінальне оновлення після виходу з циклу
       setMessages(prev => {
         const next = [...prev]
-        next[next.length - 1] = { sender: 'bot', text: botText }
+        next[next.length - 1] = { sender: 'bot', text: botText.slice(lastSplitIndex) }
         return next
       })
       setChatHistory(prev => [...prev, { role: 'assistant', content: botText }])

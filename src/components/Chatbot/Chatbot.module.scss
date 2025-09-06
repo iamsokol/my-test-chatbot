@@ -26,6 +26,12 @@
   }
 }
 
+.titleBlock {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .title {
   font-size: 35px;
   font-weight: 600;
@@ -34,6 +40,11 @@
   @media (max-width: 900px) {
     font-size: 25px;
   }
+}
+
+.headButton {
+  font-size: 16px;
+  border-radius: 15px;
 }
 
 .description {
@@ -93,6 +104,18 @@
   @media (max-width: 700px) {
     gap: 10px;
   }
+}
+
+.evaluationBox {
+  margin-top: 10px;
+  padding: 16px 20px;
+  background: #fff7e6;
+  border: 1px solid #ffd591;
+  border-radius: 12px;
+  color: #8c6d1f;
+  white-space: pre-wrap;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .input {

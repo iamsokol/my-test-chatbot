@@ -20,6 +20,8 @@ const Chatbot: React.FC = () => {
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([])
+  const [isEvaluating, setIsEvaluating] = useState(false)
+  const [evaluation, setEvaluation] = useState<string>('')
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -58,6 +60,7 @@ const Chatbot: React.FC = () => {
       const reader = response.body.getReader()
       const decoder = new TextDecoder()
       let gotFirstDelta = false
+      let lastFlush = 0
 
       while (true) {
         const { value, done } = await reader.read()
@@ -80,14 +83,23 @@ const Chatbot: React.FC = () => {
             gotFirstDelta = true
             setIsLoading(false)
           }
-          setMessages(prev => {
-            const next = [...prev]
-            // останнє повідомлення — бот; оновлюємо його текст
-            next[next.length - 1] = { sender: 'bot', text: botText }
-            return next
-          })
+          const now = Date.now()
+          if (now - lastFlush > 60) {
+            lastFlush = now
+            setMessages(prev => {
+              const next = [...prev]
+              next[next.length - 1] = { sender: 'bot', text: botText }
+              return next
+            })
+          }
         }
       }
+      // фінальне оновлення після виходу з циклу
+      setMessages(prev => {
+        const next = [...prev]
+        next[next.length - 1] = { sender: 'bot', text: botText }
+        return next
+      })
       setChatHistory(prev => [...prev, { role: 'assistant', content: botText }])
     } catch (error) {
       console.error('Something went wrong', error)
@@ -99,6 +111,48 @@ const Chatbot: React.FC = () => {
     }
   }
 
+  const finishSession = async () => {
+    if (isEvaluating || chatHistory.length === 0) return
+    setIsEvaluating(true)
+    setEvaluation('')
+    try {
+      const resp = await fetch('/api/evaluate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transcript: chatHistory }),
+      })
+      const data = await resp.json()
+      let summary = ''
+      try {
+        const obj = JSON.parse(data.evaluation)
+        const scores = obj.scores || {}
+        summary = `Feedback: ${obj.summary || ''}\nScores (1-5): HPI ${scores.hpi ?? '-'}, PMH ${
+          scores.pmh ?? '-'
+        }, PSH ${scores.psh ?? '-'}, SH ${scores.sh ?? '-'}, FH ${scores.fh ?? '-'}, Meds ${
+          scores.meds ?? '-'
+        }, Empathy ${scores.empathy ?? '-'}, Structure ${scores.structure ?? '-'}, Language ${
+          scores.language ?? '-'
+        }`
+      } catch {
+        summary = String(data.evaluation || '')
+      }
+      setEvaluation(summary)
+    } catch (e) {
+      setEvaluation('Evaluation error')
+    } finally {
+      setIsEvaluating(false)
+    }
+  }
+
+  const startNewDialog = () => {
+    setMessages([])
+    setChatHistory([])
+    setInput('')
+    setEvaluation('')
+    setIsEvaluating(false)
+    setIsLoading(false)
+  }
+
   const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       sendMessage()
@@ -108,32 +162,56 @@ const Chatbot: React.FC = () => {
   return (
     <div className={styles.container}>
       <div className={styles.head}>
-        <h1 className={styles.title}>AI Patient </h1>
+        <div className={styles.titleBlock}>
+          <h1 className={styles.title} style={{ flex: 1 }}>
+            AI Patient
+          </h1>
+          {evaluation ? (
+            <button
+              className={styles.headButton}
+              onClick={startNewDialog}
+              style={{ marginLeft: 'auto' }}
+            >
+              New dialog
+            </button>
+          ) : (
+            chatHistory.length > 0 && (
+              <button className={styles.headButton} onClick={finishSession} disabled={isEvaluating}>
+                {isEvaluating ? 'Evaluating…' : 'Finish'}
+              </button>
+            )
+          )}
+        </div>
         <p className={styles.description}>
           Use the "AI Patient" simulation to assess your skills. Assume the role of a doctor and
           conduct a thorough yet concise patient survey.
         </p>
       </div>
       <div className={styles.dialog}>
-        <div className={styles.dialogWrapper}>
-          <div className={styles.messages}>
-            {messages.map((msg, index) => (
-              <div key={index} className={msg.sender === 'user' ? styles.user : styles.bot}>
-                <div className={styles.message}>
-                  <p>{msg.text}</p>
+        {evaluation ? (
+          <div className={styles.evaluationBox}>{evaluation}</div>
+        ) : (
+          <div className={styles.dialogWrapper}>
+            <div className={styles.messages}>
+              {messages.map((msg, index) => (
+                <div key={index} className={msg.sender === 'user' ? styles.user : styles.bot}>
+                  <div className={styles.message}>
+                    <p>{msg.text}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
-            {isLoading && (
-              <div className={styles.bot}>
-                <div className={styles.loaderElement}>
-                  <span className={styles.loader}></span>
+              ))}
+              {isLoading && (
+                <div className={styles.bot}>
+                  <div className={styles.loaderElement}>
+                    <span className={styles.loader}></span>
+                  </div>
                 </div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
+              )}
+              <div ref={messagesEndRef} />
+            </div>
           </div>
-        </div>
+        )}
+
         <div className={styles.panel}>
           <input
             type="text"

@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 import { dialog } from 'src/constans'
+import { osteoporosisCase } from 'src/cases/osteoporosis'
 import {
   ChatMessage,
   createOpenAIClient,
@@ -30,14 +31,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const model = getModel()
     const temperature = getNumberEnv('OPENAI_TEMPERATURE', 0.7)
     const top_p = getNumberEnv('OPENAI_TOP_P', 1)
+    const frequency_penalty = getNumberEnv('OPENAI_FREQUENCY_PENALTY', 0.3)
     const client = createOpenAIClient()
 
     const stream = await client.chat.completions.create({
       model,
       temperature,
       top_p,
+      frequency_penalty,
       stream: true,
-      messages: [{ role: 'system', content: dialog }, ...messages],
+      messages: [
+        { role: 'system', content: dialog },
+        { role: 'system', content: `Internal case map (do not reveal): ${JSON.stringify(osteoporosisCase)}` },
+        ...messages,
+      ],
     })
 
     for await (const part of stream) {

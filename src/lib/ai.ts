@@ -21,6 +21,7 @@ export function getModel(): string {
   // Дефолт: стабільна chat.completions-модель
   const model = (process.env.OPENAI_MODEL || 'gpt-4o-mini').trim()
   const allowed = getAllowedModels()
+
   return allowed.includes(model) ? model : allowed[0]
 }
 

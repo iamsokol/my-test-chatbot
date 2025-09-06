@@ -57,6 +57,7 @@ const Chatbot: React.FC = () => {
 
       const reader = response.body.getReader()
       const decoder = new TextDecoder()
+      let gotFirstDelta = false
 
       while (true) {
         const { value, done } = await reader.read()
@@ -75,6 +76,10 @@ const Chatbot: React.FC = () => {
             throw new Error('Stream error')
           }
           botText += payload
+          if (!gotFirstDelta) {
+            gotFirstDelta = true
+            setIsLoading(false)
+          }
           setMessages(prev => {
             const next = [...prev]
             // останнє повідомлення — бот; оновлюємо його текст
@@ -90,6 +95,7 @@ const Chatbot: React.FC = () => {
         ...prevMessages,
         { sender: 'bot', text: 'Something went wrong' },
       ])
+      setIsLoading(false)
     }
   }
 
@@ -112,8 +118,8 @@ const Chatbot: React.FC = () => {
         <div className={styles.dialogWrapper}>
           <div className={styles.messages}>
             {messages.map((msg, index) => (
-              <div className={msg.sender === 'user' ? styles.user : styles.bot}>
-                <div key={index} className={styles.message}>
+              <div key={index} className={msg.sender === 'user' ? styles.user : styles.bot}>
+                <div className={styles.message}>
                   <p>{msg.text}</p>
                 </div>
               </div>

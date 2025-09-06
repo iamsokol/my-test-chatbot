@@ -54,8 +54,6 @@ const Chatbot: React.FC = () => {
       if (!response.body) throw new Error('No stream body')
 
       let botText = ''
-      // попередньо додати порожнє бот-повідомлення, яке будемо оновлювати
-      setMessages(prev => [...prev, { sender: 'bot', text: '' }])
 
       const reader = response.body.getReader()
       const decoder = new TextDecoder()
@@ -63,6 +61,8 @@ const Chatbot: React.FC = () => {
       let lastFlush = 0
       let burstCount = 1
       let lastSplitIndex = 0
+      // Ймовірнісний прапорець: лише інколи розбиваємо на 2 повідомлення
+      const allowSplit = Math.random() < 0.4
 
       while (true) {
         const { value, done } = await reader.read()
@@ -84,10 +84,17 @@ const Chatbot: React.FC = () => {
           if (!gotFirstDelta) {
             gotFirstDelta = true
             setIsLoading(false)
+            // створити перший бот-меседж лише при першому дельта
+            setMessages(prev => [...prev, { sender: 'bot', text: '' }])
           }
           // Якщо закінчилося речення і текст довший за поріг — розбий на нове повідомлення (до 2 повідомлень)
           const endsSentence = /[\.!?…]\s?$/.test(botText)
-          if (endsSentence && burstCount < 2 && botText.length - lastSplitIndex > 160) {
+          if (
+            allowSplit &&
+            endsSentence &&
+            burstCount < 2 &&
+            botText.length - lastSplitIndex > 120
+          ) {
             const splitIndex = botText.length
             // зафіксувати перше повідомлення
             setMessages(prev => {
@@ -114,11 +121,22 @@ const Chatbot: React.FC = () => {
         }
       }
       // фінальне оновлення після виходу з циклу
-      setMessages(prev => {
-        const next = [...prev]
-        next[next.length - 1] = { sender: 'bot', text: botText.slice(lastSplitIndex) }
-        return next
-      })
+      if (gotFirstDelta) {
+        setMessages(prev => {
+          const next = [...prev]
+          const remaining = botText.slice(lastSplitIndex)
+          if (remaining && remaining.trim().length > 0) {
+            next[next.length - 1] = { sender: 'bot', text: remaining }
+          } else {
+            // якщо останнє бот-повідомлення порожнє — видалити його
+            const last = next[next.length - 1]
+            if (last && last.sender === 'bot' && (!last.text || last.text.trim() === '')) {
+              next.pop()
+            }
+          }
+          return next
+        })
+      }
       setChatHistory(prev => [...prev, { role: 'assistant', content: botText }])
     } catch (error) {
       console.error('Something went wrong', error)
